@@ -1,5 +1,10 @@
 const Parcel = require("../models/Parcel");
 const User = require("../models/User");
+const moment = require("moment");
+const { parse } = require("json2csv");
+const axios = require("axios");
+const PDFDocument = require("pdfkit");
+const GOOGLE_MAPS_API_KEY = "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM";
 
 // 1. Create Parcel (Customer)
 exports.createParcel = async (req, res) => {
@@ -112,3 +117,120 @@ exports.updateParcelStatus = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+exports.getMetrics = async (req, res) => {
+  try {
+    const today = moment().startOf("day");
+    const tomorrow = moment(today).add(1, "days");
+    const daily = await Parcel.countDocuments({ createdAt: { $gte: today, $lt: tomorrow } });
+    const failed = await Parcel.countDocuments({ status: "Failed" });
+    const codAmountAgg = await Parcel.aggregate([
+      { $match: { paymentType: "COD" } },
+      { $group: { _id: null, total: { $sum: "$price" } } }
+    ]);
+    const codAmount = codAmountAgg[0]?.total || 0;
+
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = moment().subtract(i, "days").startOf("day");
+      const next = moment(day).add(1, "days");
+      const count = await Parcel.countDocuments({ createdAt: { $gte: day.toDate(), $lt: next.toDate() } });
+      last7Days.push({ date: day.format("MMM D"), count });
+    }
+
+    res.json({ daily, failed, codAmount, last7Days });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch metrics." });
+  }
+};
+
+exports.exportCSV = async (req, res) => {
+  try {
+    const parcels = await Parcel.find().populate("customerId", "email");
+
+    const data = parcels.map((p) => ({
+      ID: p._id,
+      Customer: p.customerId?.email || "N/A",
+      Status: p.status,
+      Payment: p.paymentMethod,
+      CODAmount: p.codAmount,
+      CreatedAt: p.createdAt
+    }));
+
+    const csv = parse(data);
+    res.header("Content-Type", "text/csv");
+    res.attachment("parcels.csv");
+    res.send(csv);
+  } catch (err) {
+    console.error("CSV Export Error:", err);
+    res.status(500).json({ error: "Failed to export CSV." });
+  }
+};
+
+
+exports.exportPDF = async (req, res) => {
+  try {
+    const parcels = await Parcel.find().populate("customerId", "email");
+    const doc = new PDFDocument();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=parcels.pdf");
+    doc.pipe(res);
+    doc.fontSize(16).text("Parcel Report", { align: "center" });
+    doc.moveDown();
+    parcels.forEach((p, i) => {
+      doc.fontSize(10).text(
+        `${i + 1}. ${p._id} - ${p.customerId?.email || "N/A"} - ${p.status} - ${p.paymentMethod} - ৳${p.codAmount}`
+      );
+    });
+    doc.end();
+  } catch (err) {
+    console.error("PDF Export Error:", err);
+    res.status(500).json({ error: "Failed to export PDF." });
+  }
+};
+
+exports.getOptimizedRoute = async (req, res) => {
+  try {
+    const agentId = req.user.id;
+    const parcels = await Parcel.find({
+      assignedAgent: agentId,
+      status: { $ne: "Delivered" }, // exclude delivered
+    });
+
+    if (!parcels.length) {
+      return res.status(404).json({ message: "No active parcels" });
+    }
+
+    const addresses = parcels.map(p => p.deliveryAddress).filter(Boolean);
+    if (addresses.length < 2) {
+      return res.json({ route: addresses });
+    }
+
+    const origin = addresses[0];
+    const destinations = addresses.slice(1).join('|');
+
+    const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
+      params: {
+        origin,
+        destination: origin,
+        waypoints: `optimize:true|${destinations}`,
+        key: GOOGLE_MAPS_API_KEY
+      }
+    });
+
+    const route = response.data.routes?.[0];
+    if (!route) {
+      return res.status(500).json({ message: "Failed to generate route" });
+    }
+
+    const ordered = route.waypoint_order.map(i => addresses[i + 1]);
+    const finalRoute = [origin, ...ordered];
+
+    res.json({ route: finalRoute, summary: route.summary });
+  } catch (err) {
+    console.error("Route Error:", err);
+    res.status(500).json({ error: "Failed to generate optimized route." });
+  }
+};
+

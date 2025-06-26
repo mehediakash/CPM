@@ -8,6 +8,10 @@ const {
   assignAgent,
   getAssignedParcels,
   updateParcelStatus,
+  getMetrics,
+  exportCSV,
+  exportPDF,
+  getOptimizedRoute,
 } = require("../../controllers/parcelController");
 
 const auth = require("../../middleware/auth");
@@ -25,4 +29,11 @@ _.put("/assign/:parcelId", auth, checkRole(["admin"]), assignAgent);
 // DELIVERY AGENT
 _.put("/status/:parcelId", auth, checkRole(["agent"]), updateParcelStatus);
 _.get("/assigned", auth, checkRole(["agent"]), getAssignedParcels);
+
+_.get("/metrics", auth, checkRole(["admin"]), getMetrics);
+_.get("/export/csv", auth, checkRole(["admin"]), exportCSV);
+_.get("/export/pdf", auth, checkRole(["admin"]), exportPDF);
+
+_.get("/route", auth, checkRole(["agent"]), getOptimizedRoute);
+
 module.exports = _;
