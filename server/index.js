@@ -1,44 +1,46 @@
 const express = require('express');
 const dbconfig = require("./dbConfig/config.js");
-require('dotenv').config(); 
+require('dotenv').config();
 const http = require("http");
-
+const socketIo = require("socket.io");
 const router = require("./routes");
-
-var cors = require('cors');
+const cors = require('cors');
 
 const app = express();
-app.use(express.json()); 
+app.use(express.json());
 app.use(cors());
-const server = http.createServer(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-  },
-});
-
 
 dbconfig();
-io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
 
-  socket.on("locationUpdate", (data) => {
-    io.emit("locationUpdated", data); // broadcast to all
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("🚀 New client connected");
+
+  socket.on("joinParcelRoom", (parcelId) => {
+    console.log(`📦 Joined room: ${parcelId}`);
+    socket.join(parcelId);
   });
 
-  socket.on("statusUpdate", (data) => {
-    io.emit("statusUpdated", data); // real-time status change
+  socket.on("leaveParcelRoom", (parcelId) => {
+    console.log(`🚪 Left room: ${parcelId}`);
+    socket.leave(parcelId);
   });
 
   socket.on("disconnect", () => {
-    console.log("Socket disconnected:", socket.id);
+    console.log("❌ Client disconnected");
   });
 });
 
-
-
 app.use(router);
 
-app.listen(9000, () => {
-    console.log("Server running on port 9000");
+// IMPORTANT: Start the HTTP server with Socket.IO attached
+server.listen(8000, () => {
+  console.log("Server running on port 8000");
 });

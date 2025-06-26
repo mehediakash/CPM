@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AgentDashboard from "./pages/agent/AgentDashboard";
+import LiveTracking from "./pages/customer/LiveTracking";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         >
           <Route path="book" element={<BookParcel />} />
           <Route path="my-parcels" element={<MyParcels />} />
+           <Route path="tracking/:parcelId" element={<LiveTracking />} />
         </Route>
 
         <Route
