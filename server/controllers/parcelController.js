@@ -44,6 +44,16 @@ exports.getMyParcels = async (req, res) => {
   }
 };
 
+exports.getParcelById = async (req, res) => {
+  try {
+    const parcel = await Parcel.findById(req.params.id);
+    if (!parcel) return res.status(404).json({ message: "Parcel not found" });
+    res.json(parcel);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // 3. Get All Parcels (Admin)
 exports.getAllParcels = async (req, res) => {
   try {

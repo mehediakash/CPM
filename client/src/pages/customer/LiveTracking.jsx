@@ -1,9 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+// src/pages/LiveTracking.jsx
+
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import io from "socket.io-client";
+import API from "../../api/axios";
 
-const socket = io("http://localhost:8000"); // your backend socket URL
+const socket = io("http://localhost:8000"); // Update with your actual backend socket URL
 
 const containerStyle = {
   width: "100%",
@@ -17,20 +20,54 @@ const defaultCenter = {
 
 const LiveTracking = () => {
   const { parcelId } = useParams();
-  const [position, setPosition] = useState(defaultCenter);
-  const mapRef = useRef(null);
+  const [position, setPosition] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", // 🔐 Replace with your API key
+    googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", // Replace with your own Google Maps API Key
   });
 
+  // Fetch initial location from backend
+  useEffect(() => {
+    const fetchInitialLocation = async () => {
+      try {
+        const res = await API.get(`/parcels/${parcelId}`);
+        console.log(res)
+        const history = res.data.locationHistory;
+
+        if (Array.isArray(history) && history.length > 0) {
+          const latest = history[history.length - 1];
+          if (latest?.lat && latest?.lng) {
+            setPosition({
+              lat: parseFloat(latest.lat),
+              lng: parseFloat(latest.lng),
+            });
+            console.log("Initial fetched position:", latest);
+          } else {
+            setPosition(defaultCenter);
+          }
+        } else {
+          setPosition(defaultCenter);
+        }
+      } catch (err) {
+        console.error("Error fetching parcel", err);
+        setPosition(defaultCenter);
+      }
+    };
+
+    if (parcelId) fetchInitialLocation();
+  }, [parcelId]);
+
+  // Listen for real-time socket updates
   useEffect(() => {
     if (!parcelId || !isLoaded) return;
 
     socket.emit("joinParcelRoom", parcelId);
 
     socket.on("locationUpdate", ({ lat, lng }) => {
-      setPosition({ lat, lng });
+      if (lat && lng) {
+        setPosition({ lat, lng });
+        console.log("Socket position update:", { lat, lng });
+      }
     });
 
     return () => {
@@ -39,15 +76,10 @@ const LiveTracking = () => {
     };
   }, [parcelId, isLoaded]);
 
-  if (!isLoaded) return <div>Loading map...</div>;
+  if (!isLoaded || !position) return <div>Loading map...</div>;
 
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={position}
-      zoom={15}
-      onLoad={(map) => (mapRef.current = map)}
-    >
+    <GoogleMap mapContainerStyle={containerStyle} center={position} zoom={15}>
       <Marker position={position} />
     </GoogleMap>
   );
