@@ -1,4 +1,3 @@
-// src/pages/customer/BookParcel.jsx
 import React, { useState } from "react";
 import { Form, Input, Select, Button, notification } from "antd";
 import API from "../../api/axios";
@@ -6,11 +5,17 @@ import API from "../../api/axios";
 const { Option } = Select;
 
 const BookParcel = () => {
+  const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [api, contextHolder] = notification.useNotification(); // 
 
   const onFinish = (values) => {
     if (!navigator.geolocation) {
-      return notification.error({ message: "Geolocation not supported." });
+      return api.error({
+        message: "Geolocation Not Supported",
+        description: "Your browser does not support geolocation.",
+        placement: "topRight",
+      });
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -27,17 +32,31 @@ const BookParcel = () => {
         try {
           setSubmitting(true);
           await API.post("/parcels", payload);
-          notification.success({ message: "Parcel booked successfully!" });
+
+          api.success({
+            message: " Parcel Booked",
+            description: `Delivery to: ${values.deliveryAddress}`,
+            placement: "topRight",
+          });
+
+          form.resetFields(); 
         } catch (err) {
-          console.error(err);
-          notification.error({ message: "Booking failed." });
+          api.error({
+            message: " Booking Failed",
+            description:
+              err?.response?.data?.error || "Something went wrong. Try again.",
+            placement: "topRight",
+          });
         } finally {
           setSubmitting(false);
         }
       },
       (error) => {
-        notification.error({ message: "Failed to get location." });
-        console.error(error);
+        api.error({
+          message: " Location Access Denied",
+          description: "Please allow location permission to book a parcel.",
+          placement: "topRight",
+        });
         setSubmitting(false);
       }
     );
@@ -45,13 +64,28 @@ const BookParcel = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Book a Parcel</h2>
-      <Form layout="vertical" onFinish={onFinish} initialValues={{ parcelSize: "Small", paymentMethod: "COD" }}>
-        <Form.Item name="pickupAddress" label="Pickup Address" rules={[{ required: true }]}>
+      {contextHolder} 
+      <h2 className="text-2xl font-bold mb-4">📦 Book a Parcel</h2>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{ parcelSize: "Small", paymentMethod: "COD" }}
+      >
+        <Form.Item
+          name="pickupAddress"
+          label="Pickup Address"
+          rules={[{ required: true, message: "Enter pickup address" }]}
+        >
           <Input placeholder="Enter pickup address" />
         </Form.Item>
 
-        <Form.Item name="deliveryAddress" label="Delivery Address" rules={[{ required: true }]}>
+        <Form.Item
+          name="deliveryAddress"
+          label="Delivery Address"
+          rules={[{ required: true, message: "Enter delivery address" }]}
+        >
           <Input placeholder="Enter delivery address" />
         </Form.Item>
 
@@ -70,13 +104,14 @@ const BookParcel = () => {
           </Select>
         </Form.Item>
 
-        <Form.Item
-          noStyle
-          shouldUpdate={(prev, curr) => prev.paymentMethod !== curr.paymentMethod}
-        >
+        <Form.Item noStyle shouldUpdate>
           {({ getFieldValue }) =>
             getFieldValue("paymentMethod") === "COD" ? (
-              <Form.Item name="codAmount" label="COD Amount" rules={[{ required: true }]}>
+              <Form.Item
+                name="codAmount"
+                label="COD Amount"
+                rules={[{ required: true, message: "Enter COD amount" }]}
+              >
                 <Input type="number" placeholder="Enter COD amount" />
               </Form.Item>
             ) : null
@@ -84,7 +119,7 @@ const BookParcel = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={submitting}>
+          <Button type="primary" htmlType="submit" loading={submitting} block>
             Book Parcel
           </Button>
         </Form.Item>

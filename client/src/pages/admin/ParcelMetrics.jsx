@@ -36,6 +36,7 @@ const ParcelMetrics = () => {
           codAmount: res.data.totalCOD || 0,
         });
         setChartData(res.data.pickedUpData || []);
+        
         setExportData(res.data.details || []);
       } catch (err) {
         message.error("Failed to fetch metrics.");
@@ -54,8 +55,6 @@ const ParcelMetrics = () => {
         "Customer",
         "Pickup Address",
         "Delivery Address",
-        "Size/Type",
-        "Payment Type",
         "COD (৳)"
       ]],
       body: exportData.map(item => ([
@@ -63,8 +62,6 @@ const ParcelMetrics = () => {
         item.customerId?.name || "N/A",
         item.pickupAddress || "",
         item.deliveryAddress || "",
-        item.parcelType || "",
-        item.paymentType || "",
         item.codAmount || 0
       ]))
     });
@@ -76,8 +73,7 @@ const ParcelMetrics = () => {
     { label: "Customer", key: "customerId.name" },
     { label: "Pickup Address", key: "pickupAddress" },
     { label: "Delivery Address", key: "deliveryAddress" },
-    { label: "Size/Type", key: "parcelType" },
-    { label: "Payment Type", key: "paymentType" },
+
     { label: "COD (৳)", key: "codAmount" }
   ];
 
@@ -96,7 +92,7 @@ const ParcelMetrics = () => {
       </Row>
 
       <Card
-        title="📊 Last 1 Month Bookings"
+        title=" Last 1 Month Bookings"
         extra={
           <Space>
             <CSVLink
@@ -110,7 +106,7 @@ const ParcelMetrics = () => {
           </Space>
         }
       >
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={500}>
           <BarChart data={chartData}>
             <XAxis dataKey="date" />
             <YAxis allowDecimals={false} />
@@ -119,42 +115,7 @@ const ParcelMetrics = () => {
           </BarChart>
         </ResponsiveContainer>
 
-        <Table
-          dataSource={exportData}
-          rowKey="_id"
-          columns={[
-            {
-              title: "Parcel ID",
-              dataIndex: "_id",
-            },
-            {
-              title: "Customer",
-              dataIndex: ["customerId", "name"],
-            },
-            {
-              title: "Pickup Address",
-              dataIndex: "pickupAddress",
-            },
-            {
-              title: "Delivery Address",
-              dataIndex: "deliveryAddress",
-            },
-            {
-              title: "Size/Type",
-              dataIndex: "parcelType",
-            },
-            {
-              title: "Payment Type",
-              dataIndex: "paymentType",
-            },
-            {
-              title: "COD (৳)",
-              dataIndex: "codAmount",
-              render: (val) => `৳${val}`,
-            },
-          ]}
-          pagination={{ pageSize: 5 }}
-        />
+   
       </Card>
     </>
   );

@@ -23,7 +23,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes for Unauthenticated Users */}
+    
         <Route
           path="/login"
           element={
@@ -37,7 +37,6 @@ function App() {
           element={    <UnauthenticatedRoute> <Register /></UnauthenticatedRoute>}
         />
 
-        {/* Customer Routes */}
         <Route
           path="/customer"
           element={
@@ -51,7 +50,6 @@ function App() {
           <Route path="tracking/:parcelId" element={<LiveTracking />} />
         </Route>
 
-        {/* Admin Dashboard */}
         <Route
           path="/admin"
           element={
@@ -73,7 +71,7 @@ function App() {
           <Route path="users" element={<AllUsers />} />
         </Route>
 
-        {/* Agent Dashboard */}
+
         <Route
           path="/agent"
           element={
@@ -83,7 +81,7 @@ function App() {
           }
         />
 
-        {/* Default and fallback routes */}
+     
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

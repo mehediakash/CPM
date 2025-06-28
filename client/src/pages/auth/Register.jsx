@@ -54,9 +54,9 @@ const Register = () => {
 
         <Form.Item label="Role" name="role">
           <Select>
-            <Select.Option value="Customer">Customer</Select.Option>
-            <Select.Option value="Agent">Agent</Select.Option>
-            <Select.Option value="Admin">Admin</Select.Option>
+            <Select.Option value="customer">Customer</Select.Option>
+            <Select.Option value="agent">Agent</Select.Option>
+            <Select.Option value="admin">Admin</Select.Option>
           </Select>
         </Form.Item>
         <p>I have Allready to  Account <Link to={"/login"}> Login</Link></p>

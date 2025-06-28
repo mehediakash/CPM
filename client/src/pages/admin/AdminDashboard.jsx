@@ -1,4 +1,4 @@
-// AdminDashboard.jsx
+
 import React, { useEffect, useState } from "react";
 import API from "../../api/axios";
 import { saveAs } from "file-saver";
@@ -22,7 +22,7 @@ const AdminDashboard = () => {
       API.get("/parcels/metrics"),
     ]);
     setParcels(parcelsRes.data);
-     setAgents(usersRes.data.filter((u) => u.role === "agent")); // ✅ Only agents
+     setAgents(usersRes.data.filter((u) => u.role === "agent")); 
 
     setUsers(usersRes.data);
     setMetrics(metricsRes.data);
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
                   value={p.assignedAgent?._id || ""}
                   className="border p-1"
                 >
-                  {/* i want to show here only who role in agent */}
+         
                   <option value="">-- Select Agent --</option>
                   {agents.map((a) => (
                     <option key={a._id} value={a._id}>{a.name}</option>

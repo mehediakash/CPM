@@ -1,12 +1,11 @@
 const Parcel = require("../models/Parcel");
 const User = require("../models/User");
-const moment = require("moment");
-const { parse } = require("json2csv");
 const axios = require("axios");
-const PDFDocument = require("pdfkit");
+const sendEmail = require("../utils/email"); // assumes you created this earlier
+
 const GOOGLE_MAPS_API_KEY = "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM";
 
-// 1. Create Parcel (Customer)
+
 exports.createParcel = async (req, res) => {
   try {
     const {
@@ -16,7 +15,7 @@ exports.createParcel = async (req, res) => {
       parcelType,
       paymentMethod,
       codAmount,
-      location, // receives from frontend
+      location,
     } = req.body;
 
     const locationHistory = [];
@@ -37,16 +36,43 @@ exports.createParcel = async (req, res) => {
       parcelType,
       paymentMethod,
       codAmount: paymentMethod === "COD" ? codAmount : 0,
-      locationHistory, // store first location
+      locationHistory,
     });
+
+    
+    const customer = await User.findById(req.user.id);
+    if (customer?.email) {
+      await sendEmail({
+        to: customer.email,
+        subject: "📦 Parcel Booked Successfully",
+        html: `
+          <h3>Hello ${customer.name || ""},</h3>
+          <p>Your parcel has been booked successfully!</p>
+          <ul>
+            <li><strong>Tracking ID:</strong> ${parcel._id}</li>
+            <li><strong>Pickup Address:</strong> ${pickupAddress}</li>
+            <li><strong>Delivery Address:</strong> ${deliveryAddress}</li>
+            <li><strong>Payment Method:</strong> ${paymentMethod}</li>
+            ${
+              paymentMethod === "COD"
+                ? `<li><strong>COD Amount:</strong> ৳${codAmount}</li>`
+                : ""
+            }
+          </ul>
+          <p>Thank you for choosing our service!</p>
+        `,
+      });
+    }
 
     res.status(201).json(parcel);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
 
-// 2. Get My Parcels (Customer)
+
+
 exports.getMyParcels = async (req, res) => {
   try {
     const parcels = await Parcel.find({ customerId: req.user.id }).sort({ createdAt: -1 });
@@ -66,7 +92,7 @@ exports.getParcelById = async (req, res) => {
   }
 };
 
-// 3. Get All Parcels (Admin)
+
 exports.getAllParcels = async (req, res) => {
   try {
     const parcels = await Parcel.find()
@@ -80,7 +106,7 @@ exports.getAllParcels = async (req, res) => {
   }
 };
 
-// 4. Assign Agent (Admin)
+
 exports.assignAgent = async (req, res) => {
   try {
     const { parcelId } = req.params;
@@ -106,119 +132,63 @@ exports.assignAgent = async (req, res) => {
 exports.getAssignedParcels = async (req, res) => {
   try {
     const parcels = await Parcel.find({ assignedAgent: req.user.id })
-      .populate("customerId"); // <-- this line fetches customer email
+      .populate("customerId");
     res.json(parcels);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-// 5. Update Parcel Status (Agent)
+
 exports.updateParcelStatus = async (req, res) => {
   try {
     const { parcelId } = req.params;
     const { status, lat, lng } = req.body;
 
-    const parcel = await Parcel.findById(parcelId);
+    const parcel = await Parcel.findById(parcelId).populate("customerId");
 
     if (!parcel) return res.status(404).json({ message: "Parcel not found" });
 
-    // Optional: only update if this agent is assigned
     if (String(parcel.assignedAgent) !== req.user.id) {
       return res.status(403).json({ message: "You are not assigned to this parcel" });
     }
 
     parcel.status = status;
 
-  if (lat && lng) {
-  parcel.locationHistory.push({ lat, lng, timestamp: new Date() });
-}
+    if (lat && lng) {
+      parcel.locationHistory.push({ lat, lng, timestamp: new Date() });
+    }
 
     await parcel.save();
 
+    
+    if (parcel.customerId?.email) {
+      await sendEmail({
+        to: parcel.customerId.email,
+        subject: `📦 Parcel Status Updated: ${status}`,
+        html: `
+          <h3>Hello ${parcel.customerId.name || ""},</h3>
+          <p>Your parcel with tracking ID <strong>${parcel._id}</strong> has been updated to:</p>
+          <h4>${status}</h4>
+          <p>We’ll keep you updated. Thank you!</p>
+        `,
+      });
+    }
+
     res.json({ message: "Status updated", parcel });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
 
 
-exports.getMetrics = async (req, res) => {
-  try {
-    const today = moment().startOf("day");
-    const tomorrow = moment(today).add(1, "days");
-    const daily = await Parcel.countDocuments({ createdAt: { $gte: today, $lt: tomorrow } });
-    const failed = await Parcel.countDocuments({ status: "Failed" });
-    const codAmountAgg = await Parcel.aggregate([
-      { $match: { paymentType: "COD" } },
-      { $group: { _id: null, total: { $sum: "$price" } } }
-    ]);
-    const codAmount = codAmountAgg[0]?.total || 0;
-
-    const last7Days = [];
-    for (let i = 6; i >= 0; i--) {
-      const day = moment().subtract(i, "days").startOf("day");
-      const next = moment(day).add(1, "days");
-      const count = await Parcel.countDocuments({ createdAt: { $gte: day.toDate(), $lt: next.toDate() } });
-      last7Days.push({ date: day.format("MMM D"), count });
-    }
-
-    res.json({ daily, failed, codAmount, last7Days });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch metrics." });
-  }
-};
-
-exports.exportCSV = async (req, res) => {
-  try {
-    const parcels = await Parcel.find().populate("customerId", "email");
-
-    const data = parcels.map((p) => ({
-      ID: p._id,
-      Customer: p.customerId?.email || "N/A",
-      Status: p.status,
-      Payment: p.paymentMethod,
-      CODAmount: p.codAmount,
-      CreatedAt: p.createdAt
-    }));
-
-    const csv = parse(data);
-    res.header("Content-Type", "text/csv");
-    res.attachment("parcels.csv");
-    res.send(csv);
-  } catch (err) {
-    console.error("CSV Export Error:", err);
-    res.status(500).json({ error: "Failed to export CSV." });
-  }
-};
-
-
-exports.exportPDF = async (req, res) => {
-  try {
-    const parcels = await Parcel.find().populate("customerId", "email");
-    const doc = new PDFDocument();
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=parcels.pdf");
-    doc.pipe(res);
-    doc.fontSize(16).text("Parcel Report", { align: "center" });
-    doc.moveDown();
-    parcels.forEach((p, i) => {
-      doc.fontSize(10).text(
-        `${i + 1}. ${p._id} - ${p.customerId?.email || "N/A"} - ${p.status} - ${p.paymentMethod} - ৳${p.codAmount}`
-      );
-    });
-    doc.end();
-  } catch (err) {
-    console.error("PDF Export Error:", err);
-    res.status(500).json({ error: "Failed to export PDF." });
-  }
-};
 
 exports.getOptimizedRoute = async (req, res) => {
   try {
     const agentId = req.user.id;
     const parcels = await Parcel.find({
       assignedAgent: agentId,
-      status: { $ne: "Delivered" }, // exclude delivered
+      status: { $ne: "Delivered" }, 
     });
 
     if (!parcels.length) {

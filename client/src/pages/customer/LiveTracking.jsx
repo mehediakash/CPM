@@ -1,4 +1,3 @@
-// src/pages/LiveTracking.jsx
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -6,7 +5,7 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import io from "socket.io-client";
 import API from "../../api/axios";
 import { Card } from "antd";
-const socket = io("http://localhost:8000"); // Update with your actual backend socket URL
+const socket = io("http://localhost:8000"); 
 
 const containerStyle = {
   width: "100%",
@@ -23,10 +22,10 @@ const LiveTracking = () => {
   const [position, setPosition] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", // Replace with your own Google Maps API Key
+    googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", 
   });
 
-  // Fetch initial location from backend
+
   useEffect(() => {
     const fetchInitialLocation = async () => {
       try {
@@ -57,7 +56,7 @@ const LiveTracking = () => {
     if (parcelId) fetchInitialLocation();
   }, [parcelId]);
 
-  // Listen for real-time socket updates
+
   useEffect(() => {
     if (!parcelId || !isLoaded) return;
 

@@ -62,7 +62,6 @@ const MyParcels = () => {
                   <Text strong>Payment Method:</Text> {parcel.paymentMethod}
                 </p>
 
-                {/* ✅ QR Code Generation */}
                 <div style={{ marginTop: 20, textAlign: "center" }}>
                   <Text type="secondary">Scan QR to identify parcel</Text>
                   <div style={{ marginTop: 10 }}>

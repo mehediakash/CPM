@@ -44,20 +44,20 @@ const AgentDashboard = () => {
   const [locations, setLocations] = useState([]);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [loadingParcels, setLoadingParcels] = useState(false);
-  const [loadingStatus, setLoadingStatus] = useState(null); // parcelId of updating
+  const [loadingStatus, setLoadingStatus] = useState(null); 
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", // replace with your API key
+    googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", 
   });
 
-  // Detect mobile screen
+
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768); // you can adjust breakpoint here
+      setIsMobile(window.innerWidth < 768); 
     };
-    handleResize(); // initial check
+    handleResize(); 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -87,7 +87,7 @@ const AgentDashboard = () => {
   }, []);
 
   const updateStatus = async (parcelId, status) => {
-    if (!status) return; // ignore empty selection
+    if (!status) return; 
     if (!navigator.geolocation) {
       notification.error({
         message: "Error",
