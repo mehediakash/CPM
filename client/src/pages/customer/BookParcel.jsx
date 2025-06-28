@@ -1,39 +1,23 @@
 // src/pages/customer/BookParcel.jsx
-
 import React, { useState } from "react";
+import { Form, Input, Select, Button, notification } from "antd";
 import API from "../../api/axios";
 
-const BookParcel = () => {
-  const [form, setForm] = useState({
-    pickupAddress: "",
-    deliveryAddress: "",
-    parcelSize: "Small",
-    paymentMethod: "COD",
-    codAmount: 0,
-  });
+const { Option } = Select;
 
+const BookParcel = () => {
   const [submitting, setSubmitting] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-
+  const onFinish = (values) => {
     if (!navigator.geolocation) {
-      alert("Geolocation not supported.");
-      return setSubmitting(false);
+      return notification.error({ message: "Geolocation not supported." });
     }
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-
         const payload = {
-          ...form,
+          ...values,
           location: {
             lat: latitude,
             lng: longitude,
@@ -41,24 +25,18 @@ const BookParcel = () => {
         };
 
         try {
+          setSubmitting(true);
           await API.post("/parcels", payload);
-          alert("Parcel booked successfully!");
-          setForm({
-            pickupAddress: "",
-            deliveryAddress: "",
-            parcelSize: "Small",
-            paymentMethod: "COD",
-            codAmount: 0,
-          });
+          notification.success({ message: "Parcel booked successfully!" });
         } catch (err) {
           console.error(err);
-          alert("Failed to book parcel");
+          notification.error({ message: "Booking failed." });
         } finally {
           setSubmitting(false);
         }
       },
       (error) => {
-        alert("Failed to get location.");
+        notification.error({ message: "Failed to get location." });
         console.error(error);
         setSubmitting(false);
       }
@@ -66,60 +44,51 @@ const BookParcel = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-2xl mb-4">Book a Parcel</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
-        <input
-          name="pickupAddress"
-          placeholder="Pickup Address"
-          className="border w-full p-2"
-          value={form.pickupAddress}
-          onChange={handleChange}
-        />
-        <input
-          name="deliveryAddress"
-          placeholder="Delivery Address"
-          className="border w-full p-2"
-          value={form.deliveryAddress}
-          onChange={handleChange}
-        />
+    <div className="max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Book a Parcel</h2>
+      <Form layout="vertical" onFinish={onFinish} initialValues={{ parcelSize: "Small", paymentMethod: "COD" }}>
+        <Form.Item name="pickupAddress" label="Pickup Address" rules={[{ required: true }]}>
+          <Input placeholder="Enter pickup address" />
+        </Form.Item>
 
-        <select
-          name="parcelSize"
-          className="border w-full p-2"
-          value={form.parcelSize}
-          onChange={handleChange}
+        <Form.Item name="deliveryAddress" label="Delivery Address" rules={[{ required: true }]}>
+          <Input placeholder="Enter delivery address" />
+        </Form.Item>
+
+        <Form.Item name="parcelSize" label="Parcel Size">
+          <Select>
+            <Option value="Small">Small</Option>
+            <Option value="Medium">Medium</Option>
+            <Option value="Large">Large</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item name="paymentMethod" label="Payment Method">
+          <Select>
+            <Option value="COD">Cash on Delivery</Option>
+            <Option value="Prepaid">Prepaid</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          noStyle
+          shouldUpdate={(prev, curr) => prev.paymentMethod !== curr.paymentMethod}
         >
-          <option value="Small">Small</option>
-          <option value="Medium">Medium</option>
-          <option value="Large">Large</option>
-        </select>
+          {({ getFieldValue }) =>
+            getFieldValue("paymentMethod") === "COD" ? (
+              <Form.Item name="codAmount" label="COD Amount" rules={[{ required: true }]}>
+                <Input type="number" placeholder="Enter COD amount" />
+              </Form.Item>
+            ) : null
+          }
+        </Form.Item>
 
-        <select
-          name="paymentMethod"
-          className="border w-full p-2"
-          value={form.paymentMethod}
-          onChange={handleChange}
-        >
-          <option value="COD">Cash on Delivery</option>
-          <option value="Prepaid">Prepaid</option>
-        </select>
-
-        {form.paymentMethod === "COD" && (
-          <input
-            name="codAmount"
-            type="number"
-            placeholder="COD Amount"
-            className="border w-full p-2"
-            value={form.codAmount}
-            onChange={handleChange}
-          />
-        )}
-
-        <button className="bg-green-600 text-white px-4 py-2" disabled={submitting}>
-          {submitting ? "Booking..." : "Submit"}
-        </button>
-      </form>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            Book Parcel
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

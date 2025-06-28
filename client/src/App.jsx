@@ -34,11 +34,7 @@ function App() {
         />
         <Route
           path="/signup"
-          element={
-            <UnauthenticatedRoute>
-              <Register />
-            </UnauthenticatedRoute>
-          }
+          element={    <UnauthenticatedRoute> <Register /></UnauthenticatedRoute>}
         />
 
         {/* Customer Routes */}

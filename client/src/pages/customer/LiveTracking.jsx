@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import io from "socket.io-client";
 import API from "../../api/axios";
-
+import { Card } from "antd";
 const socket = io("http://localhost:8000"); // Update with your actual backend socket URL
 
 const containerStyle = {
@@ -76,12 +76,20 @@ const LiveTracking = () => {
     };
   }, [parcelId, isLoaded]);
 
-  if (!isLoaded || !position) return <div>Loading map...</div>;
+if (!isLoaded || !position)
+    return (
+      <Card style={{ minHeight: 500, textAlign: "center" }}>
+        Loading map...
+      </Card>
+    );
+
 
   return (
+      <Card style={{ minHeight: 500 }}>
     <GoogleMap mapContainerStyle={containerStyle} center={position} zoom={15}>
       <Marker position={position} />
     </GoogleMap>
+    </Card>
   );
 };
 

@@ -45,8 +45,8 @@ const AdminLayout = () => {
         </Menu>
       </Sider>
       <Layout>
-        <Header style={{ background: "#fff", padding: 0, textAlign: "center" }}>
-          <h1 className="text-xl font-semibold">Admin Dashboard</h1>
+        <Header className="mt-10 bg-red-500" style={{ background: "#fff ",  textAlign: "center" }}>
+          <h1 className="text-xl font-semibold  ">Admin Dashboard</h1>
         </Header>
         <Content style={{ margin: "24px 16px 0" }}>
           <div className="p-6 bg-white rounded shadow-md">
