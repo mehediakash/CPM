@@ -13,6 +13,7 @@
     "@react-google-maps/api": "^2.20.7",
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.10",
+    "antd": "^5.26.2",
     "axios": "^1.10.0",
     "file-saver": "^2.0.5",
     "google-map-react": "^2.2.5",

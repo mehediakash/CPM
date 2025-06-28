@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import API from "../../api/axios";
 import { saveAs } from "file-saver";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { logout } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [parcels, setParcels] = useState([]);
@@ -10,6 +12,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [metrics, setMetrics] = useState({ daily: 0, failed: 0, codAmount: 0 });
   const [chartData, setChartData] = useState([]);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     const [parcelsRes, agentsRes, usersRes, metricsRes] = await Promise.all([
@@ -50,6 +53,10 @@ const AdminDashboard = () => {
       console.error("PDF Export Error:", error);
     }
   };
+    const handleLogout = () => {
+    logout(); 
+    navigate("/login");
+  };
 
   useEffect(() => {
     fetchData();
@@ -58,7 +65,7 @@ const AdminDashboard = () => {
   return (
     <div className="p-4 space-y-6">
       <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-
+      <button onClick={handleLogout}>Logout</button>
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white shadow rounded-xl p-4">📦 Daily Bookings: {metrics.daily}</div>
         <div className="bg-white shadow rounded-xl p-4">❌ Failed Deliveries: {metrics.failed}</div>

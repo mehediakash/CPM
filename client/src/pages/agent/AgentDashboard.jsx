@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import API from "../../api/axios";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { logout } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
 
 const statusOptions = ["Picked Up", "In Transit", "Delivered", "Failed"];
 
@@ -18,6 +20,7 @@ const AgentDashboard = () => {
   const [parcels, setParcels] = useState([]);
   const [locations, setLocations] = useState([]);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
+  const Navigate = useNavigate();
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyDlY82dZtF3EPsfAB847oKsKWEug0Mq4jM", // 🔐 Replace with your API key
@@ -53,6 +56,10 @@ const AgentDashboard = () => {
       }
     });
   };
+   const handleLogout = () => {
+    logout(); // clears localStorage
+    Navigate("/login");
+  };
 
   useEffect(() => {
     fetchAssignedParcels();
@@ -61,7 +68,7 @@ const AgentDashboard = () => {
   return (
     <div className="p-4 space-y-6">
       <h2 className="text-2xl font-bold">Agent Dashboard</h2>
-
+<button onClick={handleLogout}>Logout</button>
       {isLoaded ? (
         <div className="h-[300px] w-full">
           <h1 className="text-lg font-semibold mb-2">Delivery Route Map</h1>
@@ -89,7 +96,7 @@ const AgentDashboard = () => {
           {parcels.map((p) => (
             <tr key={p._id}>
               <td className="border px-4 py-2">{p._id}</td>
-              <td className="border px-4 py-2">{p.customerId?.email || "N/A"}</td>
+              <td className="border px-4 py-2">{p.customerId?.name || "N/A"}</td>
               {console.log(p)}
               <td className="border px-4 py-2">{p.status}</td>
               <td className="border px-4 py-2">

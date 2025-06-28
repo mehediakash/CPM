@@ -16,7 +16,18 @@ exports.createParcel = async (req, res) => {
       parcelType,
       paymentMethod,
       codAmount,
+      location, // receives from frontend
     } = req.body;
+
+    const locationHistory = [];
+
+    if (location?.lat && location?.lng) {
+      locationHistory.push({
+        lat: location.lat,
+        lng: location.lng,
+        timestamp: new Date(),
+      });
+    }
 
     const parcel = await Parcel.create({
       customerId: req.user.id,
@@ -26,6 +37,7 @@ exports.createParcel = async (req, res) => {
       parcelType,
       paymentMethod,
       codAmount: paymentMethod === "COD" ? codAmount : 0,
+      locationHistory, // store first location
     });
 
     res.status(201).json(parcel);
@@ -93,7 +105,8 @@ exports.assignAgent = async (req, res) => {
 
 exports.getAssignedParcels = async (req, res) => {
   try {
-    const parcels = await Parcel.find({ assignedAgent: req.user.id });
+    const parcels = await Parcel.find({ assignedAgent: req.user.id })
+      .populate("customerId"); // <-- this line fetches customer email
     res.json(parcels);
   } catch (err) {
     res.status(500).json({ message: err.message });

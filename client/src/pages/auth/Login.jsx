@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../../utils/auth";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,12 @@ const Login = () => {
       navigate(roleRoutes[user.role] || "/");
     }
   }, [user, navigate]);
+
+    useEffect(() => {
+    if (isLoggedIn()) {
+      navigate("/"); // or wherever your home page is
+    }
+  }, []);
 
   return (
     <div className="max-w-sm mx-auto mt-10">
