@@ -30,25 +30,7 @@ A full-stack MERN (MongoDB, Express, React, Node.js) web application for managin
 
 ---
 
-## 📂 Folder Structure
 
-```
-📦 courier-management
-├── client (React frontend)
-│   ├── src
-│   │   ├── pages
-│   │   ├── components
-│   │   ├── api (axios config)
-│   │   ├── App.js, index.js
-│   └── ...
-├── server (Node/Express backend)
-│   ├── controllers
-│   ├── models
-│   ├── routes
-│   ├── utils (email.js)
-│   ├── .env
-│   └── server.js
-```
 
 ---
 
