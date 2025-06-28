@@ -8,6 +8,7 @@ import {
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../utils/auth";
 
+
 const { Header, Sider, Content } = Layout;
 
 const CustomerLayout = () => {
@@ -68,9 +69,11 @@ const CustomerLayout = () => {
             block
             onClick={handleLogout}
           >
-            Logout
+            {collapsed ? "LG" : "Logout"}
+            
           </Button>
         </div>
+        
       </Sider>
 
       <Layout>

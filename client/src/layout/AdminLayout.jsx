@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Menu } from "antd";
+import { Button, Layout, Menu } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   DashboardOutlined,
@@ -40,12 +40,15 @@ const AdminLayout = () => {
             <Link to="users">All Users</Link>
           </Menu.Item>
           <Menu.Item key="4" icon={<LogoutOutlined />} onClick={handleLogout}>
+      
+
             Logout
+     
           </Menu.Item>
         </Menu>
       </Sider>
       <Layout>
-        <Header className="mt-10 bg-red-500" style={{ background: "#fff ",  textAlign: "center" }}>
+        <Header  style={{ background: "#fff ",  textAlign: "center", height:"100px" }}>
           <h1 className="text-xl font-semibold  ">Admin Dashboard</h1>
         </Header>
         <Content style={{ margin: "24px 16px 0" }}>

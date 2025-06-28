@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { List, Button, Card, Spin, Typography, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import API from "../../api/axios";
+import QRCode from "react-qr-code";
 
 const { Text } = Typography;
 
@@ -60,6 +61,14 @@ const MyParcels = () => {
                 <p>
                   <Text strong>Payment Method:</Text> {parcel.paymentMethod}
                 </p>
+
+                {/* ✅ QR Code Generation */}
+                <div style={{ marginTop: 20, textAlign: "center" }}>
+                  <Text type="secondary">Scan QR to identify parcel</Text>
+                  <div style={{ marginTop: 10 }}>
+                    <QRCode   value={parcel._id} size={100} />
+                  </div>
+                </div>
               </Card>
             </List.Item>
           )}

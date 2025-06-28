@@ -162,12 +162,7 @@ const AgentDashboard = () => {
       title: "Update Status",
       key: "update",
       render: (_, record) => (
-        <Popconfirm
-          title={`Update status of parcel ${record._id}?`}
-          onConfirm={() => updateStatus(record._id, record.status)}
-          okText="Yes"
-          cancelText="No"
-        >
+       
           <Select
             value={record.status}
             onChange={(value) => updateStatus(record._id, value)}
@@ -181,7 +176,7 @@ const AgentDashboard = () => {
               </Option>
             ))}
           </Select>
-        </Popconfirm>
+   
       ),
       responsive: ["sm"],
     },
