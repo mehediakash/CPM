@@ -1,36 +1,41 @@
-
 # 📦 Courier Management System
 
-A full-stack MERN (MongoDB, Express, React, Node.js) web application for managing parcel deliveries with support for agent assignment, live status tracking, bar chart analytics, email notifications, and exportable reports.
+A full-stack **MERN (MongoDB, Express, React, Node.js)** web application for managing parcel deliveries with features like agent assignment, live tracking, analytics, email notifications, and exportable reports.
 
+---
 
+## 🔐 Access Credentials (Demo)
+
+| Role     | Email                          | Password   |
+|----------|--------------------------------|------------|
+| Customer | dev.mhakash@gmail.com          | 12345678   |
+| Agent    | freelancer.mhakash@gmail.com   | 12345678   |
+| Admin    | mylogicbd3@gmail.com           | 12345678   |
+
+---
 
 ## 🚀 Features
 
 - ✅ Customer parcel booking with geolocation
 - ✅ Agent dashboard to update parcel status
-- ✅ Live parcel tracking with status updates
-- ✅ Analytics dashboard (bar charts for last 30 days)
+- ✅ Live parcel tracking with real-time updates
+- ✅ Analytics dashboard with bar charts (last 30 days)
 - ✅ Export reports as **CSV** or **PDF**
-- ✅ Email notifications to customers (parcel booked, status changed)
-- ✅ Admin: Assign agents to bookings
-- ✅ Barcode scan for pickup/delivery confirmation
-- ✅ Authentication system with JWT
-- ✅ Responsive and clean UI (Ant Design)
+- ✅ Email notifications (booking & status updates)
+- ✅ Admin panel to assign agents
+- ✅ Barcode scanning for pickup/delivery confirmation
+- ✅ JWT authentication system
+- ✅ Fully responsive UI using Ant Design
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Frontend         | Backend          | Database   | Others             |
-|------------------|------------------|------------|--------------------|
-| React.js         | Express.js       | MongoDB    | Nodemailer (email) |
-| React Router     | Node.js          | Mongoose   | jsPDF + autoTable  |
-| Ant Design       | JWT Auth         |            | Recharts, CSVLink  |
-
----
-
-
+| Frontend         | Backend          | Database   | Tools & Libraries        |
+|------------------|------------------|------------|---------------------------|
+| React.js         | Node.js          | MongoDB    | Nodemailer (SMTP Email)   |
+| React Router     | Express.js       | Mongoose   | jsPDF + autoTable (PDF)   |
+| Ant Design       | JWT Auth         |            | Recharts, CSVLink         |
 
 ---
 
@@ -39,29 +44,21 @@ A full-stack MERN (MongoDB, Express, React, Node.js) web application for managin
 ### ✅ Prerequisites
 
 - Node.js & npm
-- MongoDB (cloud)
-- Gmail account or SendGrid (for email)
+- MongoDB Atlas (or local MongoDB)
+- Gmail account / SMTP service for email
 
 ---
 
 ### 🔧 Backend Setup
 
-1. **Navigate to server folder**
-
 ```bash
+# Navigate to the server folder
 cd server
-```
 
-2. **Install dependencies**
-
-```bash
+# Install dependencies
 npm install
-```
 
-
-4. **Start backend**
-
-```bash
+# Run the backend server
 npm run start
 ```
 
@@ -69,21 +66,14 @@ npm run start
 
 ### 🎨 Frontend Setup
 
-1. **Navigate to client folder**
-
 ```bash
+# Navigate to the client folder
 cd client
-```
 
-2. **Install dependencies**
-
-```bash
+# Install dependencies
 npm install
-```
 
-3. **Start React app**
-
-```bash
+# Run the frontend React app
 npm run dev
 ```
 
@@ -91,50 +81,42 @@ npm run dev
 
 ## 📬 Email Notification Setup
 
-> 📧 Uses Gmail SMTP by default. Use App Passwords if 2FA is enabled.
+> 📧 By default, Gmail SMTP is used. If 2FA is enabled on your Gmail account, use an App Password.
 
-- File: `/server/utils/email.js`
-- Modify if you want to use SendGrid, Mailgun, etc.
+- Configuration file: `/server/utils/email.js`
+- Can be modified for SendGrid, Mailgun, etc.
 
 ---
 
 ## 🧪 API Endpoints Overview
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/parcels` | Book new parcel |
-| `PUT` | `/api/parcels/status/:id` | Update parcel status |
-| `PUT` | `/api/parcels/assign/:id` | Assign agent |
-| `GET` | `/api/parcels` | All parcels |
-| `GET` | `/api/analytics/metrics` | Parcel analytics |
-| `POST` | `/api/auth/register` | Register user |
-| `POST` | `/api/auth/login` | Login user |
+API Documentation: https://documenter.getpostman.com/view/40735701/2sB34ZskJa
 
 ---
 
 ## 📊 Dashboard Analytics
 
-- Shows bookings over the last 30 days
-- COD collection total
-- Failed delivery counts
-- Exportable reports: **CSV**, **PDF**
+- Total bookings over the last 30 days
+- COD collection summary
+- Failed delivery stats
+- Exportable reports as **CSV** and **PDF**
 
 ---
 
+## 📷 Screenshots / Components
 
-
-
-- Booking form
-- Analytics chart
-- Assign agent UI
-- PDF report
-- Email example (Gmail)
+- 📦 Booking Form  
+- 📈 Analytics Dashboard  
+- 👥 Agent Assignment UI  
+- 📄 PDF Export Example  
+- 📧 Email Notification (via Gmail)
 
 ---
 
 ## 🙋‍♂️ Author
 
-Developed by MD Mehedi Hasan Akash (https://github.com/mehediakash)  
-Contact: dev.mhakash@gmail.com
+Developed by **MD Mehedi Hasan Akash**  
+🔗 [GitHub Profile](https://github.com/mehediakash)  
+📧 Email: dev.mhakash@gmail.com
 
 ---
