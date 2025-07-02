@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
 
 app.use(router);
 
-// IMPORTANT: Start the HTTP server with Socket.IO attached
+
 server.listen(8000, () => {
   console.log("Server running on port 8000");
 });

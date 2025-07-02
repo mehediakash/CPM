@@ -36,10 +36,10 @@ const Register = () => {
   };
 
   return (
-    <div style={{ maxWidth: 450, margin: "50px auto", padding: 24, background: "#fff", borderRadius: 8 }}>
+    <div className="h-[100vh] flex justify-center items-center flex-col  "  style={{  background: "#fff", borderRadius: 8 }}>
       {contextHolder}
       <Title level={3} style={{ textAlign: "center" }}>Register</Title>
-      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ role: "Customer" }}>
+      <Form  className="w-[300] md:w-[400px]"  form={form} layout="vertical" onFinish={onFinish} initialValues={{ role: "Customer" }}>
         <Form.Item label="Full Name" name="name" rules={[{ required: true, message: "Please enter your name" }]}>
           <Input placeholder="Your Name" />
         </Form.Item>
@@ -59,7 +59,7 @@ const Register = () => {
             <Select.Option value="admin">Admin</Select.Option>
           </Select>
         </Form.Item>
-        <p>I have Allready to  Account <Link to={"/login"}> Login</Link></p>
+        <p className="mb-3">Already have an account?  <Link to={"/login"}> Log in</Link></p>
         <Form.Item>
           <Button type="primary" htmlType="submit" block>
             Register

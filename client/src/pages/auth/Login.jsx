@@ -50,10 +50,11 @@ const Login = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "50px auto", padding: 24, background: "#fff", borderRadius: 8 }}>
+    <div className="h-[100vh] flex justify-center items-center flex-col  "  style={{  background: "#fff", borderRadius: 8 }}>
       {contextHolder}
       <Title level={3} style={{ textAlign: "center" }}>Login</Title>
-      <Form layout="vertical" onFinish={onFinish}>
+     
+      <Form className="w-[300] md:w-[400px]" layout="vertical" onFinish={onFinish}>
         <Form.Item label="Email" name="email" rules={[{ required: true, message: "Please enter your email" }]}>
           <Input placeholder="Enter your email" />
         </Form.Item>
@@ -61,7 +62,7 @@ const Login = () => {
         <Form.Item label="Password" name="password" rules={[{ required: true, message: "Please enter your password" }]}>
           <Input.Password placeholder="Enter your password" />
         </Form.Item>
-        <p>I have not a Account please <Link to={"/signup"}> singup</Link></p>
+        <p className="mb-3">Don't have an account?  <Link to={"/signup"}> Sign up</Link></p>
         <Form.Item>
           <Button type="primary" htmlType="submit" block loading={loading}>
             Login

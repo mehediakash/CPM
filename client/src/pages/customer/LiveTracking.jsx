@@ -5,7 +5,7 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import io from "socket.io-client";
 import API from "../../api/axios";
 import { Card } from "antd";
-const socket = io("http://localhost:8000"); 
+const socket = io("https://fleocse.automallbd.net"); 
 
 const containerStyle = {
   width: "100%",
